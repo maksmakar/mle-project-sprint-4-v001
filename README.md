@@ -1,30 +1,28 @@
-# Подготовка виртуальной машины
+# Инструкция по запуску микросервиса
+
 
 ## Склонируйте репозиторий
 
 Склонируйте репозиторий проекта:
 
 ```
-git clone https://github.com/yandex-praktikum/mle-project-sprint-4-v001.git
+git clone https://github.com/AndrushikB/mle-recsys-project.git
 ```
 
 ## Активируйте виртуальное окружение
-
-Используйте то же самое виртуальное окружение, что и созданное для работы с уроками. Если его не существует, то его следует создать.
-
 Создать новое виртуальное окружение можно командой:
 
 ```
-python3 -m venv env_recsys_start
+python3.10 -m venv .venv_recsys-project
 ```
 
-После его инициализации следующей командой
+После, инициализируйте его следующей командой:
 
 ```
-. env_recsys_start/bin/activate
+source .venv_recsys-project/bin/activate
 ```
 
-установите в него необходимые Python-пакеты следующей командой
+установите в него необходимые Python-пакеты следующей командой:
 
 ```
 pip install -r requirements.txt
@@ -32,41 +30,45 @@ pip install -r requirements.txt
 
 ### Скачайте файлы с данными
 
-Для начала работы понадобится три файла с данными:
-- [tracks.parquet](https://storage.yandexcloud.net/mle-data/ym/tracks.parquet)
-- [catalog_names.parquet](https://storage.yandexcloud.net/mle-data/ym/catalog_names.parquet)
-- [interactions.parquet](https://storage.yandexcloud.net/mle-data/ym/interactions.parquet)
- 
-Скачайте их в директорию локального репозитория. Для удобства вы можете воспользоваться командой wget:
+Для работы и тестирования сервиса понадобится четыре файла с данными. Для их загрузки подготовлен ноутбук в корневой директории `download_files.ipynb`.
 
-```
-wget https://storage.yandexcloud.net/mle-data/ym/tracks.parquet
-
-wget https://storage.yandexcloud.net/mle-data/ym/catalog_names.parquet
-
-wget https://storage.yandexcloud.net/mle-data/ym/interactions.parquet
-```
-
-## Запустите Jupyter Lab
-
-Запустите Jupyter Lab в командной строке
-
-```
-jupyter lab --ip=0.0.0.0 --no-browser
-```
+Спомощью этого ноутбука скачайте необходимые файлы в директорию локального репозитория.
 
 # Расчёт рекомендаций
 
-Код для выполнения первой части проекта находится в файле `recommendations.ipynb`. Изначально, это шаблон. Используйте его для выполнения первой части проекта.
+Код первой части проекта находится в файле `recommendations.ipynb`.
 
 # Сервис рекомендаций
 
-Код сервиса рекомендаций находится в файле `recommendations_service.py`.
+Код сервиса рекомендаций находится по пути `rec_service/recommendations_service.py`.
 
-<*укажите здесь необходимые шаги для запуска сервиса рекомендаций*>
+Перейдите в директорию `rec_service`:
+```
+cd rec_service
+```
+Для работы сервиса рекомендаций необходимы Feature store и Event store (запуск производить из двух разных терминалов, на двух разных портах):
+
+```
+uvicorn features_service:app --port 8010
+```
+```
+uvicorn events_service:app --port 8020
+```
+
+Код для запуска сервиса рекомендаций в новом терминале:
+
+```
+uvicorn rec_service.recommendation_service:app
+```
 
 # Инструкции для тестирования сервиса
 
-Код для тестирования сервиса находится в файле `test_service.py`.
+Код для тестирования сервиса находится по пути `rec_service/test_service.py`.
 
-<*укажите здесь необходимые шаги для тестирования сервиса рекомендаций*>
+Находясь в директории 'rec_service' запустите тест:
+
+```
+python3 test_service.py
+```
+
+Повторный запуск теста изменит рекомендации (в ходе теста к одному и тому же пользователю добавляется онлайн история).
